@@ -9,7 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"hash"
-	"strings"
+	"net/url"
 )
 
 // A Signer signs messages to create signed OAuth1 Requests.
@@ -32,7 +32,8 @@ func (s *HMACSigner) Name() string {
 }
 
 func hmacSign(consumerSecret, tokenSecret, message string, algo func() hash.Hash) (string, error) {
-	signingKey := strings.Join([]string{consumerSecret, tokenSecret}, "&")
+	signingKey := url.QueryEscape(consumerSecret) + "&" + url.QueryEscape(tokenSecret)
+
 	mac := hmac.New(algo, []byte(signingKey))
 	mac.Write([]byte(message))
 	signatureBytes := mac.Sum(nil)
